@@ -1,0 +1,62 @@
+#!/bin/bash
+
+function detect_exit() {
+
+ex=$?
+
+if [[ "$ex" != "0" ]]
+then
+
+    exit
+    
+fi
+
+}
+
+yad --window-icon=/usr/share/flashy/icon.png --image=/usr/share/flashy/icon.png --title="Flashy" --text="Welcome to Flashy! This is the automated install Wizard, and will install the best Adobe Flash Player emulators/runtimes for your hardware. Press 'Continue' when you are ready to move on." --button="Continue"
+
+detect_exit
+
+if [[ "$(uname -m)" == "x86_64" ]]
+then
+
+    yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --text="You are running an x86_64 machine, which means your computer is compatible with the Adobe Flash Player Standalone runtime. Installing this runtime is highly recommended, as it provides the best performance and compatibility with the vast majority of Flash content. However, this runtime is packaged as a Flatpak, which means that Flatpak will also be installed if you don't already have it. Would you like to install the Adobe Flash Player Standalone runtime now?" --button="Maybe Later":1 --button="Install Now":0
+    
+    ex=$?
+    
+    if [[ "$ex" == "0" ]]
+    then
+    
+        flashy-flashplayer-flatpak-installer
+        
+    elif [[ "$ex" != "1" ]]
+    then
+    
+        exit
+        
+    fi
+    
+else
+
+    yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --text="You are running an $(uname -m) machine, which is unfortunately not compatible with the Adobe Flash Player Standalone runtime. However, the next best thing, Ruffle, is available for your machine. Would you like to install Ruffle now?" --button="Maybe Later":1 --button="Install Now":0
+    
+    if [[ "$ex" == "0" ]]
+    then
+    
+        flashy-ruffle-installer
+        
+    elif [[ "$ex" != "1" ]]
+    then
+    
+        exit
+        
+    fi
+    
+fi
+
+yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --text="Flashy is now set up and ready to go! If you would like to install/remove any emulators/runtimes, simply head over to the Flashy menu at any time." --button="Dismiss"
+    
+    
+    
+    
+    

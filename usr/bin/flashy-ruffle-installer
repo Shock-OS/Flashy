@@ -14,10 +14,43 @@ mkdir -p ~/.local/share/flashy
 
 cd ~/.local/share/flashy
 
-git clone https://github.com/ruffle-rs/ruffle.git
+yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --text="Would you like to install the latest release of Ruffle, or a custom release? (If you are not sure, just click 'Latest'.)" --button="Latest" --button="Custom"
+
+ex=$?
+
+if [[ "$ex" == "0" ]] #latest
+then
+
+    git clone https://github.com/ruffle-rs/ruffle.git
+    
+else #custom
+
+    file=$(yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --file)
+        
+    ex=$?
+    
+    if [[ "$ex" == "0" ]]
+    then
+    
+        cp "$file" ~/.local/share/flashy
+        
+        if [[ "$file" == *".zip" ]]
+        then
+        
+            unzip "$file"
+            
+        else
+        
+            tar –xvzf "$file"
+            
+        fi
+        
+        rm "$file"
+        
+    fi
+    
+fi
 
 cd ~/.local/share/flashy/ruffle
-
-chmod -R a+w ~/.local/share/flashy/ruffle
 
 cargo run --release --package=ruffle_desktop
