@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1
+Name=Flashy
+Comment=Front-end for Ruffle and Lightspark
+Exec=flashy
+TryExec=flashy
+Icon=/usr/share/flashy/icon.png
+Terminal=false
+Type=Application
+Categories=System;Utility;
+Keywords=adobe;flash;player;flashy
+Name[en_US]=Flashy

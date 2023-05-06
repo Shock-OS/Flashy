@@ -1,0 +1,83 @@
+#!/bin/bash
+
+success="no"
+
+until [[ "$success" == "yes" ]]
+do
+
+    success="yes"
+
+    output=$(yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --text="Please choose a .swf file and an emulator to run the software." --form --field="Flash Game (.swf):":FL '' --field="Emulator:":CB 'Ruffle!Lightspark' --field="(Optional) Use Custom Emulator":CHK 'FALSE' --field="(Optional) Custom Emulator:":FL '' --button="Run")
+
+    ex=$?
+
+    if [[ "$ex" != "0" ]]
+    then
+
+        exit
+
+    fi
+
+    swf=$(echo "$output" | awk -F'|' '{print $1}')
+
+    emulator=$(echo "$output" | awk -F'|' '{print $2}')
+
+    usecustomemu=$(echo "$output" | awk -F'|' '{print $3}')
+
+    customemu=$(echo "$output" | awk -F'|' '{print $4}')
+
+    if [[ "$usecustomemu" == "TRUE" ]] && [[ ! -f "$customemu" || ! -x "$customemu" ]]
+    then
+
+        success="no"
+        
+        yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --text="Looks like the custom emulator is not an executable file. Please choose an executable program or script as a custom emulator." --button="Retry"
+
+        ex=$?
+
+        if [[ "$ex" != "0" ]]
+        then
+
+            exit
+
+        fi
+
+    elif [[ "$swf" != *".swf" ]]
+    then
+
+        success="no"
+        
+        yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --text="That Flash game does not appear to be a .swf file. Please choose a .swf file." --button="Retry"
+
+        ex=$?
+
+        if [[ "$ex" != "0" ]]
+        then
+
+            exit
+
+        fi
+
+    fi
+
+done
+
+if [[ "$usecustomemu" == "TRUE" ]]
+then
+
+    "$customemu" "$swf"
+
+elif [[ "$emulator" == "Ruffle" ]]
+then
+
+    cd ~/.local/share/flashy/ruffle
+
+    cargo run --release --package=ruffle_desktop -- "$swf"
+
+else
+
+    lightspark "$swf"
+
+fi
+
+

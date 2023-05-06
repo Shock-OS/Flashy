@@ -1,0 +1,9 @@
+#!/bin/bash
+
+runuser=$1
+
+sudo apt install -y flatpak flatpak-builder git
+
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+sudo -u "$runuser" flatpak install -y com.adobe.Flash-Player-Projector

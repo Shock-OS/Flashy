@@ -1,0 +1,63 @@
+#!/bin/bash
+
+if [[ "$(ls ~/.local/share/applications/flashy | wc -l)" == "0" ]]
+then
+
+    yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --text="You do not have any Flash games installed." --button="Dismiss"
+
+    exit
+
+fi
+
+counter=0
+
+apps=(~/.local/share/applications/flashy/*)
+
+yadcb=""
+
+until (($counter>=$(ls ~/.local/share/applications/flashy | wc -l)))
+do
+
+    name="${apps[counter]}"
+
+    name="${name##*/}"
+
+    name=${name%".desktop"}
+
+    if [[ -z "$yadcb" ]]
+    then
+
+        yadcb="$name"
+
+    else
+
+        yadcb="$yadcb!$name"
+
+    fi
+
+    let counter++
+
+done
+
+output="$(yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --form --field="Game to Remove:":CB "$yadcb" --button="Remove")"
+
+ex=$?
+
+if [[ "$ex" != "0" ]]
+then
+
+    exit
+
+fi
+
+gtr=$(echo "$output" | awk -F'|' '{print $1}')
+
+rm ~/.local/share/flashy/icons/"$gtr.png"
+
+rm ~/.local/share/flashy/swfs/"$gtr.swf"
+
+rm ~/.local/share/applications/flashy/"$gtr.desktop"
+
+rm ~/.local/share/flashy/customexecs/"$gtr"
+
+yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --text="'$gtr' has been successfully removed." --button="Dismiss"

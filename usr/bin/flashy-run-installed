@@ -1,0 +1,32 @@
+#!/bin/bash
+
+games=""
+
+for i in "$(ls ~/.local/share/flashy/scripts)"
+do
+
+    if [[ -n "$games" ]]
+    then
+    
+        games+="!$i"
+    
+    else
+    
+        games="$i"
+        
+    fi
+    
+done
+
+output="$(yad --window-icon=/usr/share/flashy/icon.png --title=Flashy --form --field="Game to Run:":CB "$games" --button=Run)"
+
+ex=$?
+
+game=$(echo $output | awk 'BEGIN {FS="|" } { print $1 }')
+
+if [[ "$ex" == "0" ]]
+then
+
+    ~/.local/share/flashy/scripts/"$game"
+    
+fi

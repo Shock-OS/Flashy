@@ -1,0 +1,183 @@
+#!/bin/bash
+
+#package SWF files as apps and run them using Ruffle
+
+success="no"
+
+swf=""
+
+name=""
+
+icon=""
+
+emulator="Ruffle"
+
+customexec=""
+
+usecustomexec="FALSE"
+
+until [[ "$success" == "yes" ]]
+do
+
+    if [[ "$emulator" == "Ruffle" ]]
+    then
+
+        emulatoroption='^Ruffle!Lightspark!Adobe Flash Player (Flatpak)'
+
+    elif [[ "$emulator" == "Lightspark" ]]
+    then
+
+        emulatoroption='Ruffle!^Lightspark!Adobe Flash Player (Flatpak)'
+
+    else
+
+        emulatoroption='Ruffle!Lightspark!^Adobe Flash Player (Flatpak)'
+
+    fi
+
+    success="yes"
+
+    output=$(yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --form --field="SWF File:":FL "$swf" --field="App Name:" "$name" --field="App Icon:":FL "$icon" --field="Emulator:":CB "$emulatoroption" --field="(Optional) Use Custom Executable":CHK 'FALSE' --field="(Optional) Custom Executable:":FL "$customexec")
+
+    swf=$(echo "$output" | awk -F'|' '{print $1}')
+
+    name=$(echo "$output" | awk -F'|' '{print $2}')
+
+    icon=$(echo "$output" | awk -F'|' '{print $3}')
+
+    emulator=$(echo "$output" | awk -F'|' '{print $4}')
+
+    usecustomexec=$(echo "$output" | awk -F'|' '{print $5}')
+
+    customexec=$(echo "$output" | awk -F'|' '{print $6}')
+
+    counter=0
+
+    apps=(~/.local/share/applications/flashy/*)
+
+    namelist=""
+
+    if [[ "$(grep -o '|' <<<"$output" | wc -l)" != "6" ]]
+    then
+
+        success="no"
+
+        yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --text="You cannot use the '|' character in any field. Please try again." --button="Retry"
+
+        ex=$?
+
+        if [[ "$ex" != "0" ]]
+        then
+
+            exit
+
+        fi
+
+    elif [[ -f ~/.local/share/applications/flashy/"$name.desktop" ]]
+    then
+
+        success="no"
+
+        yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --text="There is already a flash game named '$name' on your system. Please choose a different name." --button="Retry"
+
+        ex=$?
+
+        if [[ "$ex" != "0" ]]
+        then
+
+            exit
+
+        fi
+
+    elif [[ "$swf" != *".swf" ]]
+    then
+
+        success="no"
+
+        yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --text="The file you selected does not appear to be a .swf file. Please choose a .swf file." --button="Retry"
+
+        ex=$?
+
+        if [[ "$ex" != "0" ]]
+        then
+
+            exit
+
+        fi
+
+    elif [[ "$usecustomexec" == "TRUE" ]] && [[ -z "$customexec" || ! -f "$customexec" || ! -x "$customexec" ]]
+    then
+
+        success="no"
+
+        yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --text="You have not selected a custom executable. Please choose an executable file." --button="Retry"
+
+        ex=$?
+
+        if [[ "$ex" != "0" ]]
+        then
+
+            exit
+
+        fi
+
+    fi
+
+done
+
+mkdir -p ~/.local/share/applications/flashy
+
+mkdir -p ~/.local/share/flashy/swfs
+
+mkdir -p ~/.local/share/flashy/icons
+
+mkdir -p ~/.local/share/flashy/customexecs
+
+mkdir -p ~/.local/share/flashy/scripts
+
+cp "$swf" ~/.local/share/flashy/swfs/"$name.swf"
+
+cp "$icon" ~/.local/share/flashy/icons/"$name.png"
+
+touch ~/.local/share/applications/flashy/"$name.desktop"
+
+touch ~/.local/share/flashy/scripts/"$name"
+
+if [[ "$emulator" == "Ruffle" ]]
+then
+
+    execline="bash -c \"cd ~/.local/share/flashy/ruffle && cargo run --release --package=ruffle_desktop -- ~/.local/share/flashy/swfs/'$name.swf'\""
+
+elif [[ "$emulator" == "Lightspark" ]]
+then
+
+    execline="bash -c \"lightspark ~/.local/share/flashy/swfs/'$name.swf'\""
+
+else
+
+    execline="bash -c \"flatpak run com.adobe.Flash-Player-Projector ~/.local/share/flashy/swfs/'$name.swf'\""
+
+fi
+
+if [[ "$usecustomexec" == "TRUE" ]] && [[ ! -z "$customexec" ]]
+then
+
+    cp "$customexec" ~/.local/share/flashy/customexecs/"$name"
+
+    execline="bash -c \"~/.local/share/flashy/customexecs/'$name' ~/.local/share/flashy/swfs/'$name.swf'\""
+
+fi
+
+chmod +x ~/.local/share/applications/flashy/"$name.desktop"
+
+chmod +x ~/.local/share/flashy/scripts/"$name"
+
+echo "[Desktop Entry]
+Version=1
+Name=$name
+Exec=$execline
+Icon=/home/$(whoami)/.local/share/flashy/icons/$name.png
+Terminal=false
+Type=Application
+Categories=Game;
+Keywords=flashy;flash;$name" | tee ~/.local/share/applications/flashy/"$name.desktop"

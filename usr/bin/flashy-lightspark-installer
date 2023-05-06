@@ -1,0 +1,19 @@
+#!/bin/bash
+
+sudo apt install git gcc g++ nasm cmake libcurl4-gnutls-dev libsdl2-dev libpango1.0-dev libcairo2-dev libavcodec-dev libswresample-dev libglew-dev librtmp-dev libjpeg-dev libavformat-dev liblzma-dev
+
+sudo rm -r /usr/share/flashy/lightspark
+
+sudo mkdir -p /usr/share/flashy/lightspark
+
+rm -rf /usr/share/flashy/lightspark-latest
+
+mkdir -p /tmp/flashy/lightspark
+
+wget https://github.com/lightspark/lightspark/archive/refs/tags/latest.tar.gz -P /tmp/flashy/lightspark
+
+sudo tar -xf /tmp/flashy/lightspark/latest.tar.gz -C /usr/share/flashy
+
+cd /usr/share/flashy/lightspark-latest
+
+sudo /usr/share/flashy/lightspark-latest/build.sh
