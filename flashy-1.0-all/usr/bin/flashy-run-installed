@@ -1,0 +1,52 @@
+#!/bin/bash
+
+if [[ -n "$1" ]]
+then
+
+    game="$1"
+    
+    ex="0"
+    
+    if [[ ! -f ~/.local/share/applications/flashy/"$game.desktop" ]]
+    then
+    
+        echo "No such game installed. Exiting..."
+        
+        exit
+        
+    fi
+    
+else
+
+    games=""
+
+    for i in "$(ls ~/.local/share/applications/flashy | cut -d "." -f 1)"
+    do
+
+        if [[ -n "$games" ]]
+        then
+        
+            games+="!$i"
+        
+        else
+        
+            games="$i"
+            
+        fi
+        
+    done
+
+    output="$(yad --window-icon=/usr/share/flashy/icon.png --title=Flashy --form --field="Game to Run:":CB "$games" --button=Run)"
+
+    ex=$?
+
+    game=$(echo $output | awk 'BEGIN {FS="|" } { print $1 }')
+    
+fi
+
+if [[ "$ex" == "0" ]]
+then
+
+    eval $(cat ~/.local/share/applications/flashy/"$game.desktop" | grep Exec= | cut -d "=" -f 2)
+    
+fi

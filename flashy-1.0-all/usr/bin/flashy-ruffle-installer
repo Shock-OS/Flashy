@@ -14,11 +14,7 @@ mkdir -p ~/.local/share/flashy
 
 cd ~/.local/share/flashy
 
-yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --text="Would you like to install the latest release of Ruffle, or a custom release? (If you are not sure, just click 'Latest'.)" --button="Latest" --button="Custom"
-
-ex=$?
-
-if [[ "$ex" == "0" ]] #latest
+if [[ "$1" =! "--custom" ]] #latest
 then
 
     git clone https://github.com/ruffle-rs/ruffle.git
@@ -45,7 +41,13 @@ else #custom
             
         fi
         
-        rm "$file"
+        mkdir -p ~/.local/share/flashy/ruffle
+        
+        mv ~/.local/share/flashy/"$(basename "$(echo "$file" | cut -d . -f 1)")"/* ~/.local/share/flashy/ruffle
+        
+        rm ~/.local/share/flashy/"$(basename "$file")"
+        
+        rm -r ~/.local/share/flashy/"$(basename "$(echo "$file" | cut -d . -f 1)")"
         
     fi
     

@@ -1,0 +1,90 @@
+#!/bin/bash
+
+ruffle_versions=()
+
+for i in ~/.local/share/flashy/ruffle-versions/*
+do
+
+    if [[ -n "${ruffle_versions[@]}" ]]
+    then
+    
+        ruffle_versions+=("\"$(basename "$i")\"")
+        
+    else
+    
+        ruffle_versions=("\"$(basename "$i")\"")
+        
+    fi
+    
+done
+
+yad='yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --list --always-print-result --column="Name" --button="Remove":0 --button="Rename":1 --button="Install":2 '
+
+yad+="${ruffle_versions[@]}"
+
+output="$(eval $yad)"
+
+ex=$?
+
+ruffle_version=$(echo $output | awk 'BEGIN {FS="|" } { print $1 }')
+
+if [[ "$ex" == "0" ]] #remove
+then
+
+    yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --text="Are you sure you want to remove $ruffle_version?" --button="No, keep" --button="Yes, remove"
+    
+    ex=$?
+    
+    if [[ "$ex" == "1" ]]
+    then
+    
+        rm ~/.local/share/flashy/ruffle-versions/"$ruffle_version"
+        
+    fi
+
+elif [[ "$ex" == "1" ]] #rename
+then
+
+    success="no"
+
+    until [[ "$success" == "yes" ]]
+    do
+    
+        success="yes"
+
+        new_name="$(yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --text="What would you like to name $ruffle_version?" --entry --entry-text="$ruffle_version")"
+        
+        if [[ -e ~/.local/share/flashy/ruffle-versions/"$new_name" ]]
+        then
+        
+            success="no"
+        
+            yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --text="A version of Ruffle called $new_name already exists. Please choose a different name." --button="Retry"
+            
+        fi
+        
+    done
+        
+    mv ~/.local/share/flashy/ruffle-versions/"$ruffle_version" ~/.local/share/flashy/ruffle-versions/"$new_name"
+    
+elif [[ "$ex" == "1" ]] #install new version
+then
+
+    flashy-ruffle-installer --custom
+    
+fi
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+

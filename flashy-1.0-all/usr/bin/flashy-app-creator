@@ -34,6 +34,18 @@ do
         emulatoroption='Ruffle!Lightspark!^Adobe Flash Player (Flatpak)'
 
     fi
+    
+    if [[ -d ~/.local/share/flashy/ruffle_versions ]]
+    then
+    
+        for i in ~/.local/share/flashy/ruffle_versions/*
+        do
+        
+            emulatoroption+="!Ruffle: $i"
+            
+        done
+        
+    fi
 
     success="yes"
 
@@ -157,6 +169,11 @@ else
 
     execline="bash -c \"flatpak run com.adobe.Flash-Player-Projector ~/.local/share/flashy/swfs/'$name.swf'\""
 
+elif [[ "$emulator" == "Ruffle: "* ]] #if custom Ruffle version
+then
+
+    execline="bash -c \"cd ~/.local/share/flashy/ruffle-versions/\"${emulator:8}\" && cargo run --release --package=ruffle_desktop -- ~/.local/share/flashy/swfs/'$name.swf'\""
+    
 fi
 
 if [[ "$usecustomexec" == "TRUE" ]] && [[ ! -z "$customexec" ]]
