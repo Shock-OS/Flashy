@@ -158,21 +158,30 @@ touch ~/.local/share/flashy/scripts/"$name"
 if [[ "$emulator" == "Ruffle" ]]
 then
 
-    execline="bash -c \"cd ~/.local/share/flashy/ruffle && cargo run --release --package=ruffle_desktop -- ~/.local/share/flashy/swfs/'$name.swf'\""
+    execline="flashy-run-installed \"$name\""
+    
+    fri="cd ~/.local/share/flashy/ruffle && cargo run --release --package=ruffle_desktop -- ~/.local/share/flashy/swfs/'$name.swf'"
 
 elif [[ "$emulator" == "Lightspark" ]]
 then
 
-    execline="bash -c \"lightspark ~/.local/share/flashy/swfs/'$name.swf'\""
+    execline="flashy-run-installed \"$name\""
+    
+    fri="lightspark ~/.local/share/flashy/swfs/'$name.swf'"
 
-else
+elif [[ "$emulator" == "Adobe Flash Player (Flatpak)" ]]
+then
 
-    execline="bash -c \"flatpak run com.adobe.Flash-Player-Projector ~/.local/share/flashy/swfs/'$name.swf'\""
+    execline="flashy-run-installed \"$name\""
+    
+    fri="flatpak run com.adobe.Flash-Player-Projector ~/.local/share/flashy/swfs/'$name.swf'"
 
 elif [[ "$emulator" == "Ruffle: "* ]] #if custom Ruffle version
 then
 
-    execline="bash -c \"cd ~/.local/share/flashy/ruffle-versions/\"${emulator:8}\" && cargo run --release --package=ruffle_desktop -- ~/.local/share/flashy/swfs/'$name.swf'\""
+    execline="flashy-run-installed \"$name\""
+    
+    fri="cd ~/.local/share/flashy/ruffle-versions/\"${emulator:8}\" && cargo run --release --package=ruffle_desktop -- ~/.local/share/flashy/swfs/'$name.swf'"
     
 fi
 
@@ -181,7 +190,9 @@ then
 
     cp "$customexec" ~/.local/share/flashy/customexecs/"$name"
 
-    execline="bash -c \"~/.local/share/flashy/customexecs/'$name' ~/.local/share/flashy/swfs/'$name.swf'\""
+    execline="flashy-run-installed \"$name\""
+    
+    fri="~/.local/share/flashy/customexecs/'$name' ~/.local/share/flashy/swfs/'$name.swf'"
 
 fi
 
@@ -197,4 +208,5 @@ Icon=/home/$(whoami)/.local/share/flashy/icons/$name.png
 Terminal=false
 Type=Application
 Categories=Game;
-Keywords=flashy;flash;$name" | tee ~/.local/share/applications/flashy/"$name.desktop"
+Keywords=flashy;flash;$name
+#FRI: $fri" | tee ~/.local/share/applications/flashy/"$name.desktop"

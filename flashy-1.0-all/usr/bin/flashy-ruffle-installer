@@ -41,9 +41,9 @@ else #custom
             
         fi
         
-        mkdir -p ~/.local/share/flashy/ruffle
+        mkdir -p ~/.local/share/flashy/ruffle-versions
         
-        mv ~/.local/share/flashy/"$(basename "$(echo "$file" | cut -d . -f 1)")"/* ~/.local/share/flashy/ruffle
+        mv ~/.local/share/flashy/"$(basename "$(echo "$file" | cut -d . -f 1)")" ~/.local/share/flashy/ruffle-versions
         
         rm ~/.local/share/flashy/"$(basename "$file")"
         

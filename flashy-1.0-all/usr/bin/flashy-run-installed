@@ -47,6 +47,8 @@ fi
 if [[ "$ex" == "0" ]]
 then
 
-    eval $(cat ~/.local/share/applications/flashy/"$game.desktop" | grep Exec= | cut -d "=" -f 2)
+    cmd="$(cat ~/.local/share/applications/flashy/"$game.desktop" | grep '#FRI: ')"
+
+    bash -c "${cmd:6}"
     
 fi

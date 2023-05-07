@@ -1,3 +1,5 @@
 #!/bin/bash
 
+rm *.deb
+
 dpkg-deb --build -Zxz flashy-*.0-all
