@@ -1,55 +1,115 @@
 #!/bin/bash
 
-#package SWF files as apps and run them using Ruffle
+#create .desktop files that run SWFS with a runtime
 
 success="no"
 
-swf=""
+if [[ -n "$1" ]] #if in EDIT MODE
+then
 
-name=""
+    icon="$(cat ~/.local/share/applications/flashy/"${1}.desktop" | grep Icon=)"
 
-icon=""
+    icon="${icon:5}"
 
-emulator="Ruffle"
+    name="$(cat ~/.local/share/applications/flashy/"${1}.desktop" | grep Name=)"
 
-customexec=""
+    name="${name:5}"
 
-usecustomexec="FALSE"
+    swf="/home/$(whoami)/.local/share/flashy/swfs/$name.swf"
+
+    if [[ "$(cat ~/.local/share/applications/flashy/"${1}.desktop" | grep Exec=)" == *"flatpak run com.adobe.Flash-Player-Projector"* ]]
+    then
+
+        if [[ "$(uname -m)" == "x86_64" ]] #if 64 bit Intel/AMD computer
+        then
+
+        emulatoroption='Adobe Flash Player Standalone (Flatpak)!Ruffle'
+
+        else
+
+        emulatoroption="Ruffle"
+
+        fi
+
+    else
+
+        if [[ "$(uname -m)" == "x86_64" ]] #if 64 bit Intel/AMD computer
+        then
+
+        emulatoroption='Adobe Flash Player Standalone (Flatpak)!^Ruffle'
+
+        else
+
+        emulatoroption="Ruffle"
+
+        fi
+
+    fi
+
+    if [[ -f ~/.local/share/flashy/customexecs/"$name" ]]
+    then
+
+        customexec="~/.local/share/flashy/customexecs/$name"
+
+    else
+
+        customexec=""
+
+    fi
+
+    deletefile="/home/$(whoami)/.local/share/applications/flashy/${1}.desktop"
+
+else
+
+    swf=""
+
+    name=""
+
+    icon=""
+
+    if [[ "$(uname -m)" == "x86_64" ]] #if 64 bit Intel/AMD computer
+    then
+
+        emulatoroption='Adobe Flash Player Standalone (Flatpak)!Ruffle'
+
+    else
+
+        emulatoroption="Ruffle"
+
+    fi
+
+    customexec=""
+
+    usecustomexec="FALSE"
+
+fi
 
 until [[ "$success" == "yes" ]]
 do
 
-    if [[ "$emulator" == "Ruffle" ]]
-    then
-
-        emulatoroption='^Ruffle!Lightspark!Adobe Flash Player (Flatpak)'
-
-    elif [[ "$emulator" == "Lightspark" ]]
-    then
-
-        emulatoroption='Ruffle!^Lightspark!Adobe Flash Player (Flatpak)'
-
-    else
-
-        emulatoroption='Ruffle!Lightspark!^Adobe Flash Player (Flatpak)'
-
-    fi
-    
-    if [[ -d ~/.local/share/flashy/ruffle_versions ]]
-    then
-    
-        for i in ~/.local/share/flashy/ruffle_versions/*
-        do
-        
-            emulatoroption+="!Ruffle: $i"
-            
-        done
-        
-    fi
-
     success="yes"
 
-    output=$(yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --form --field="SWF File:":FL "$swf" --field="App Name:" "$name" --field="App Icon:":FL "$icon" --field="Emulator:":CB "$emulatoroption" --field="(Optional) Use Custom Executable":CHK 'FALSE' --field="(Optional) Custom Executable:":FL "$customexec")
+    if [[ -z "$1" ]] #if in INSTALL MODE
+    then
+
+        savebutton='--button=Install!add'
+
+    else #if in EDIT MODE
+
+        savebutton='--button=Save!gtk-save'
+
+    fi
+
+    output=$(yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --form --field="SWF File:":FL "$swf" --field="App Name:" "$name" --field="App Icon:":FL "$icon" --field="Emulator:":CB "$emulatoroption" --field="(Optional) Use Custom Executable":CHK 'FALSE' --field="(Optional) Custom Executable:":FL "$customexec" "$savebutton" --button="Cancel"\!gtk-cancel)
+
+    ex=$?
+
+    if [[ "$ex" != "0" ]]
+    then
+
+        exit
+
+    fi
 
     swf=$(echo "$output" | awk -F'|' '{print $1}')
 
@@ -85,7 +145,7 @@ do
 
         fi
 
-    elif [[ -f ~/.local/share/applications/flashy/"$name.desktop" ]]
+    elif [[ -f ~/.local/share/applications/flashy/"$name.desktop" ]] && [[ -z "$1" ]]
     then
 
         success="no"
@@ -149,7 +209,7 @@ mkdir -p ~/.local/share/flashy/scripts
 
 cp "$swf" ~/.local/share/flashy/swfs/"$name.swf"
 
-cp "$icon" ~/.local/share/flashy/icons/"$name.png"
+convert "$icon" -resize "64x64" ~/.local/share/flashy/icons/"$name.png"
 
 touch ~/.local/share/applications/flashy/"$name.desktop"
 
@@ -158,31 +218,12 @@ touch ~/.local/share/flashy/scripts/"$name"
 if [[ "$emulator" == "Ruffle" ]]
 then
 
-    execline="flashy-run-installed \"$name\""
-    
-    fri="cd ~/.local/share/flashy/ruffle && cargo run --release --package=ruffle_desktop -- ~/.local/share/flashy/swfs/'$name.swf'"
+    execline="bash -c \"cd ~/.local/share/flashy/ruffle && cargo run --release --package=ruffle_desktop -- ~/.local/share/flashy/swfs/'$name.swf'\""
 
-elif [[ "$emulator" == "Lightspark" ]]
-then
+else
 
-    execline="flashy-run-installed \"$name\""
-    
-    fri="lightspark ~/.local/share/flashy/swfs/'$name.swf'"
+    execline="bash -c \"flatpak run com.adobe.Flash-Player-Projector ~/.local/share/flashy/swfs/'$name.swf'\""
 
-elif [[ "$emulator" == "Adobe Flash Player (Flatpak)" ]]
-then
-
-    execline="flashy-run-installed \"$name\""
-    
-    fri="flatpak run com.adobe.Flash-Player-Projector ~/.local/share/flashy/swfs/'$name.swf'"
-
-elif [[ "$emulator" == "Ruffle: "* ]] #if custom Ruffle version
-then
-
-    execline="flashy-run-installed \"$name\""
-    
-    fri="cd ~/.local/share/flashy/ruffle-versions/\"${emulator:8}\" && cargo run --release --package=ruffle_desktop -- ~/.local/share/flashy/swfs/'$name.swf'"
-    
 fi
 
 if [[ "$usecustomexec" == "TRUE" ]] && [[ ! -z "$customexec" ]]
@@ -190,15 +231,20 @@ then
 
     cp "$customexec" ~/.local/share/flashy/customexecs/"$name"
 
-    execline="flashy-run-installed \"$name\""
-    
-    fri="~/.local/share/flashy/customexecs/'$name' ~/.local/share/flashy/swfs/'$name.swf'"
+    execline="bash -c \"~/.local/share/flashy/customexecs/'$name' ~/.local/share/flashy/swfs/'$name.swf'\""
 
 fi
 
 chmod +x ~/.local/share/applications/flashy/"$name.desktop"
 
 chmod +x ~/.local/share/flashy/scripts/"$name"
+
+if [[ -n "$deletefile" ]]
+then
+
+    rm "$deletefile"
+
+fi
 
 echo "[Desktop Entry]
 Version=1
@@ -208,5 +254,4 @@ Icon=/home/$(whoami)/.local/share/flashy/icons/$name.png
 Terminal=false
 Type=Application
 Categories=Game;
-Keywords=flashy;flash;$name
-#FRI: $fri" | tee ~/.local/share/applications/flashy/"$name.desktop"
+Keywords=flashy;flash;$name" | tee ~/.local/share/applications/flashy/"$name.desktop"

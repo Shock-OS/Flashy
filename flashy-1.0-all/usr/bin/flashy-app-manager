@@ -1,0 +1,74 @@
+#!/bin/bash
+
+IFS=$'\n'
+
+while true
+do
+
+    apps=()
+
+    if (($(ls ~/.local/share/applications/flashy/* | wc -l)==0)) #if no flash apps installed
+    then
+
+        buttons="--button=\"Install\"\!add"
+
+    else
+
+        for i in ~/.local/share/applications/flashy/*
+        do
+
+            icon="$(cat "$i" | grep Icon=)"
+
+            icon="${icon:5}"
+
+            name="$(cat "$i" | grep Name=)"
+
+            name="${name:5}"
+
+            apps+=("\"$icon\"" "\"$name\"" "\"$i\"")
+
+        done
+
+        buttons="--button=\"Install\"\!add --button=\"Edit\"\!gtk-edit --button=\"Remove\"\!remove"
+
+    fi
+
+    app="$(eval "yad --window-icon=/usr/share/flashy/icon.png --title=\"Flashy Game Manager\" --list --no-headers --column=\"Icon\":IMG --column=\"Name\" --print-column=2 --always-print-result --column=\"File\":HD --width=500 --height=300 $buttons --buttons-layout=spread ${apps[@]}")"
+
+    ex=$?
+
+    if [[ -n "$app" ]]
+    then
+
+        app="${app::-1}"
+
+    fi
+
+    if [[ "$ex" == "0" ]] #install
+    then
+
+        flashy-app-creator
+
+    elif [[ "$ex" == "1" ]] #edit
+    then
+
+        flashy-app-creator "$app"
+
+    elif [[ "$ex" == "2" ]] #remove
+    then
+
+        rm ~/.local/share/applications/flashy/"${app}.desktop"
+
+        rm ~/.local/share/flashy/icons/"${app}.png"
+
+        rm ~/.local/share/flashy/swfs/"${app}.swf"
+
+        rm ~/.local/share/flashy/customexecs/"${app}"
+
+    else
+
+        exit
+
+    fi
+
+done

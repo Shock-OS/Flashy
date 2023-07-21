@@ -14,45 +14,10 @@ mkdir -p ~/.local/share/flashy
 
 cd ~/.local/share/flashy
 
-if [[ "$1" =! "--custom" ]] #latest
-then
-
-    git clone https://github.com/ruffle-rs/ruffle.git
-    
-else #custom
-
-    file=$(yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --file)
-        
-    ex=$?
-    
-    if [[ "$ex" == "0" ]]
-    then
-    
-        cp "$file" ~/.local/share/flashy
-        
-        if [[ "$file" == *".zip" ]]
-        then
-        
-            unzip "$file"
-            
-        else
-        
-            tar –xvzf "$file"
-            
-        fi
-        
-        mkdir -p ~/.local/share/flashy/ruffle-versions
-        
-        mv ~/.local/share/flashy/"$(basename "$(echo "$file" | cut -d . -f 1)")" ~/.local/share/flashy/ruffle-versions
-        
-        rm ~/.local/share/flashy/"$(basename "$file")"
-        
-        rm -r ~/.local/share/flashy/"$(basename "$(echo "$file" | cut -d . -f 1)")"
-        
-    fi
-    
-fi
+git clone https://github.com/ruffle-rs/ruffle.git
 
 cd ~/.local/share/flashy/ruffle
+
+chmod -R a+w ~/.local/share/flashy/ruffle
 
 cargo run --release --package=ruffle_desktop

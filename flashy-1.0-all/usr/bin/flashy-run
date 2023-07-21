@@ -2,12 +2,23 @@
 
 success="no"
 
+if [[ "$(uname -m)" == "x86_64" ]] #if 64 bit Intel/AMD computer
+then
+
+    emulatoroption='Adobe Flash Player Standalone (Flatpak)!Ruffle'
+
+else
+
+    emulatoroption="Ruffle"
+
+fi
+
 until [[ "$success" == "yes" ]]
 do
 
     success="yes"
 
-    output=$(yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --text="Please choose a .swf file and an emulator to run the software." --form --field="Flash Game (.swf):":FL '' --field="Emulator:":CB 'Ruffle!Lightspark' --field="(Optional) Use Custom Emulator":CHK 'FALSE' --field="(Optional) Custom Emulator:":FL '' --button="Run")
+    output=$(yad --window-icon=/usr/share/flashy/icon.png --title="Flashy" --text="Please choose a .swf file and an emulator to run the software." --form --field="Flash Game (.swf):":FL '' --field="Emulator:":CB "$emulatoroption" --field="(Optional) Use Custom Emulator":CHK 'FALSE' --field="(Optional) Custom Emulator:":FL '' --button="Run")
 
     ex=$?
 
@@ -76,7 +87,7 @@ then
 
 else
 
-    lightspark "$swf"
+    flatpak run com.adobe.Flash-Player-Projector "$swf"
 
 fi
 

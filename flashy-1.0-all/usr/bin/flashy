@@ -11,35 +11,24 @@ else
 
 fi
 
-if [[ -d /usr/share/flashy/lightspark ]]
+if [[ "$(flatpak info com.adobe.Flash-Player-Projector | grep Installed:)" != *"Installed:"* ]] #if Adobe Flash Player (Flatpak) not installed
 then
 
-    lightspark_button_label="Upgrade Lightspark"
+    flashplayer_flatpak_button_label="Install Adobe Flash Player (Flatpak)"
 
-else
+else #if installed
 
-    lightspark_button_label="Install Lightspark"
+    flashplayer_flatpak_button_label="Upgrade Adobe Flash Player (Flatpak)"
 
 fi
 
 if [[ "$(uname -m)" == "x86_64" ]]
 then
 
-    if [[ "$(flatpak info com.adobe.Flash-Player-Projector | grep Installed:)" != *"Installed:"* ]] #if Adobe Flash Player (Flatpak) not installed
-    then
+    yad --width=300 --window-icon=/usr/share/flashy/icon.png --title="Flashy" --form --field="Manage Games":FBTN 'flashy-app-manager' --field="Run a Game":FBTN 'flashy-run' --field=:LBL '' --field="$ruffle_button_label":FBTN 'flashy-ruffle-installer-kickstart' --field="$flashplayer_flatpak_button_label":FBTN 'flashy-flashplayer-flapak-installer' --no-buttons
 
-        flashplayer_flatpak_button_label="--field='Install Adobe Flash Player (Flatpak)':FBTN 'flashy-flashplayer-flatpak-installer'"
-
-    else #if installed
-
-        flashplayer_flatpak_button_label="--field='Upgrade Adobe Flash Player (Flatpak)':FBTN 'flashy-flashplayer-flatpak-installer'"
-
-    fi
-    
 else
 
-    flashplayer_flatpak_button_label=""
-    
-fi
+    yad --width=300 --window-icon=/usr/share/flashy/icon.png --title="Flashy" --form --field="Manage Games":FBTN 'flashy-app-manager' --field="Run a Game":FBTN 'flashy-run' --field=:LBL '' --field="$ruffle_button_label":FBTN 'flashy-ruffle-installer-kickstart' --no-buttons
 
-yad --width=300 --window-icon=/usr/share/flashy/icon.png --title="Flashy" --form --field="Install a Game":FBTN 'flashy-app-creator' --field="Remove a Game":FBTN 'flashy-app-remover' --field="Run a Game":FBTN 'flashy-run' --field=:LBL '' --field="$ruffle_button_label":FBTN 'bash -c "x-terminal-emulator -e flashy-ruffle-installer"' --field="$lightspark_button_label":FBTN 'bash -c "x-terminal-emulator -e flashy-lightspark-installer"' "$flashplayer_flatpak_button_label" --no-buttons
+fi

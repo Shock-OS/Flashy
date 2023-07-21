@@ -1,9 +1,42 @@
 #!/bin/bash
 
-runuser=$1
+installed_packages=($(apt list --installed | awk -F/ '{print $1}' | uniq)) #ChatGPT
 
-sudo apt install -y flatpak flatpak-builder git
+if [[ " ${installed_packages[@]} " != *" flatpak "* ]]
+then
 
-flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    yad --window-icon=/usr/share/flashy/icon.png --image=emblem-important --title="Flatpak Not Installed" --text="The Adobe Flash Player Standalone runtime is a Flatpak, but Flatpak is not installed. In order to install the runtime and play flash games, Flatpak will need to be installed. Would you like to install Flatpak and the Adobe Flash Player Standalone runtime?" --button="Yes"\!gtk-ok --button="No"\!gtk-cancel
 
-sudo -u "$runuser" flatpak install -y com.adobe.Flash-Player-Projector
+    ex=$?
+
+    if [[ "$ex" != "0" ]]
+    then
+
+        yad --window-icon=/usr/share/flashy/icon.png --title="Installation Canceled" --text="Neither Flatpak nor the Adobe Flash Player Standalone runtime were installed. The installation was aborted." --button="Dismiss"\!gtk-quit
+
+        exit
+
+    fi
+
+    pkexec env DEBIAN_FRONTEND=gnome apt install -y flatpak | yad --title="Installing Flatpak" --center --fixed --progress --pulsate --no-buttons --skip-taskbar --undecorated --auto-close --progress-text="Installing Flatpak..."
+
+    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo | yad --title="Adding Flathub" --center --fixed --progress --pulsate --no-buttons --skip-taskbar --undecorated --auto-close --progress-text="Adding Flathub..."
+
+else
+
+    yad --window-icon=/usr/share/flashy/icon.png --image=emblem-important --title="Installing the Runtime" --text="The Adobe Flash Player Standalone runtime is a Flatpak application, and Flatpak is installed on your system. Would you like to install the Adobe Flash Player Standalone runtime?" --button="Yes"\!gtk-ok --button="No"\!gtk-cancel
+
+    ex=$?
+
+    if [[ "$ex" != "0" ]]
+    then
+
+        yad --window-icon=/usr/share/flashy/icon.png --title="Installation Canceled" --text="The Adobe Flash Player Standalone runtime was not installed. The installation was aborted." --button="Dismiss"\!gtk-quit
+
+        exit
+
+    fi
+
+fi
+
+flatpak install -y com.adobe.Flash-Player-Projector | yad --title="Installing the Adobe Flash Player Standalone runtime" --center --fixed --progress --pulsate --no-buttons --skip-taskbar --undecorated --auto-close --progress-text="Installing the Adobe Flash Player Standalone runtime..."
