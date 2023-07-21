@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [[ ! -f ~/.config/flashy-setup-complete ]]
+then
+
+    flashy-setup || exit
+
+fi
+
 if [[ -d ~/.local/share/flashy/ruffle ]]
 then
 

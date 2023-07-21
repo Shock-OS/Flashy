@@ -17,7 +17,7 @@ yad --window-icon=/usr/share/flashy/icon.png --image=/usr/share/flashy/icon.png 
 
 detect_exit
 
-if [[ "$(uname -m)" == "x86_64" ]] #if 64 bit Intel/AMD computer
+if [[ "$(uname -m)" == "x86_64" ]] && [[ "$(flatpak info com.adobe.Flash-Player-Projector | grep Installed:)" != *"Installed:"* ]] #if 64 bit Intel/AMD computer and the Adobe Flash Player Standalone runtime is not installed.
 then
 
     yad --window-icon=/usr/share/flashy/icon.png --image=/usr/share/flashy/icon.png --title="Flashy" --text="Great news! Your computer is compatible with the Adobe Flash Player Standalone runtime. This is the best way to run Flash content on your computer. Would you like to install it?
@@ -29,11 +29,12 @@ NOTE: The Adobe Flash Player Standalone runtime is a Flatpak application. If you
     if [[ "$ex" == "1" ]]
     then
 
-        flashy-flashplayer-flapak-installer
+        flashy-flashplayer-flapak-installer || (yad --window-icon=/usr/share/flashy/icon.png --image=emblem-important --title="FAILED" --text="Failed to set up Flashy. Please try again later." --button="Dismiss"\!gtk-quit && exit 1)
 
     fi
 
-else
+elif [[ ! -d ~/.local/share/flashy/ruffle ]]
+then
 
     yad --window-icon=/usr/share/flashy/icon.png --image=/usr/share/flashy/icon.png --title="Flashy" --text="Unfortunately, your $(uname -m) system does not support the Adobe Flash Player Standalone runtime, which is the best way to run Flash content on Linux. However, the next best thing, Ruffle, is supported by your computer. Would you like to install Ruffle?" --button="No thanks" --button="Install Ruffle"\!gtk-add --width=400
 
@@ -42,8 +43,12 @@ else
     if [[ "$ex" == "1" ]]
     then
 
-        flashy-ruffle-installer-kickstart
+        flashy-ruffle-installer-kickstart || (yad --window-icon=/usr/share/flashy/icon.png --image=emblem-important --title="FAILED" --text="Failed to set up Flashy. Please try again later." --button="Dismiss"\!gtk-quit && exit 1)
 
     fi
 
 fi
+
+touch ~/.config/flashy-setup-complete
+
+yad --window-icon=/usr/share/flashy/icon.png --image=emblem-default --title="Setup Complete" --text="Congratulations! You have successfully set up Flashy! Now you can enjoy your favorite Flash content!" --button="Dismiss"\!gtk-quit

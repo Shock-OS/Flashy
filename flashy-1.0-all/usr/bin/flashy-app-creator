@@ -209,7 +209,7 @@ mkdir -p ~/.local/share/flashy/scripts
 
 cp "$swf" ~/.local/share/flashy/swfs/"$name.swf"
 
-convert "$icon" -resize "64x64" ~/.local/share/flashy/icons/"$name.png"
+convert "$icon" -resize "64x64" ~/.local/share/flashy/icons/"$name.png" || echo "Failed to convert the icon."
 
 touch ~/.local/share/applications/flashy/"$name.desktop"
 

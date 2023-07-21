@@ -18,9 +18,9 @@ then
 
     fi
 
-    pkexec env DEBIAN_FRONTEND=gnome apt install -y flatpak | yad --title="Installing Flatpak" --center --fixed --progress --pulsate --no-buttons --skip-taskbar --undecorated --auto-close --progress-text="Installing Flatpak..."
+    pkexec env DEBIAN_FRONTEND=gnome apt install -y flatpak | yad --title="Installing Flatpak" --center --fixed --progress --pulsate --no-buttons --skip-taskbar --undecorated --auto-close --progress-text="Installing Flatpak..." || (yad --window-icon=/usr/share/flashy/icon.png --title="ERROR" "Failed to install Flatpak. Please double-check your internet connection and try again later. The program will now exit." --button="Dismiss"\!gtk-quit && exit 1)
 
-    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo | yad --title="Adding Flathub" --center --fixed --progress --pulsate --no-buttons --skip-taskbar --undecorated --auto-close --progress-text="Adding Flathub..."
+    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo | yad --title="Adding Flathub" --center --fixed --progress --pulsate --no-buttons --skip-taskbar --undecorated --auto-close --progress-text="Adding Flathub..." || (yad --window-icon=/usr/share/flashy/icon.png --window-icon=emblem-important --title="ERROR" --text="Failed to add Flathub. The program will now exit." --button="Dismiss"\!gtk-quit && exit 1)
 
 else
 
@@ -39,4 +39,4 @@ else
 
 fi
 
-flatpak install -y com.adobe.Flash-Player-Projector | yad --title="Installing the Adobe Flash Player Standalone runtime" --center --fixed --progress --pulsate --no-buttons --skip-taskbar --undecorated --auto-close --progress-text="Installing the Adobe Flash Player Standalone runtime..."
+flatpak install -y com.adobe.Flash-Player-Projector | yad --title="Installing the Adobe Flash Player Standalone runtime" --center --fixed --progress --pulsate --no-buttons --skip-taskbar --undecorated --auto-close --progress-text="Installing the Adobe Flash Player Standalone runtime..." || (yad --window-icon=/usr/share/flashy/icon.png --window-icon=emblem-important --title="ERROR" --text="Failed to install the Adobe Flash Player Standalone runtime. Please double-check your internet connection and try again later. If the problem persists, please post an issue in the Flashy GitHub repo. The program will now exit." --button="Dismiss"\!gtk-quit && exit 1)
