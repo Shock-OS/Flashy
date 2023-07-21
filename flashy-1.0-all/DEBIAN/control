@@ -1,8 +1,0 @@
-Package: Flashy
-Version: 1.0
-Architecture: all
-Essential: no
-Priority: optional
-Depends: yad,wget
-Maintainer: Carson Grover
-Description: Flashy is a front-end for the Ruffle and Lightspark Adobe Flash Player emulators that makes it incredibly easy to install and run flash games as regular desktop apps.
