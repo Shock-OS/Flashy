@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [[ "$(uname -m)" == "x86_64" ]]
+then
+
+    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo || {
+
+    echo "Failed to add Flathub. Exiting..."
+
+    exit 1
+
+    }
+
+    flatpak install -y com.adobe.Flash-Player-Projector || {
+
+    echo "Failed to install the Adobe Flash Player Standalone runtime. Exiting..."
+
+    exit 1
+
+    }
+
+fi

@@ -1,8 +1,0 @@
-Package: Flashy
-Version: 1.1
-Architecture: all
-Essential: no
-Priority: optional
-Depends: yad,wget
-Maintainer: Carson Grover
-Description: Front-end for Adobe Flash Player emulators and runtimes.
